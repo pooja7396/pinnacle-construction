@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConstructAI — AI-Powered Construction Planning</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060c18;
+    --surface: #0a1628;
+    --surface2: #0f1f38;
+    --border: #1a3050;
+    --accent: #00aaff;
+    --accent2: #00e5cc;
+    --accent3: #ff6b35;
+    --steel: #8faabb;
+    --white: #e8f0fe;
+    --muted: #4a6480;
+    --grid: rgba(0,170,255,0.04);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ====== NAV ====== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 3rem;
+    background: rgba(6,12,24,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .nav-logo span { color: var(--white); }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--steel);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+
+  /* ====== SECTIONS ====== */
+  section { position: relative; z-index: 1; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
+  /* ====== HERO ====== */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 8rem 0 4rem;
+    overflow: hidden;
+  }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    letter-spacing: 3px;
+    margin-bottom: 1.2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4.2rem);
+    font-weight: 700;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+
+  .hero-title .highlight {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-subtitle {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.2rem;
+    color: var(--accent2);
+    font-weight: 500;
+    margin-bottom: 1.2rem;
+    letter-spacing: 1px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.5s forwards;
+  }
+
+  .hero-desc {
+    color: var(--steel);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0,170,255,0.1);
+    border: 1px solid rgba(0,170,255,0.3);
+    border-radius: 20px;
+    padding: 0.3rem 1rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.55s forwards;
+  }
+
+  .hero-badge::before { content: '●'; animation: pulse 2s infinite; }
+
+  .btn-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.7s forwards;
+  }
+
+  .btn-primary {
+    padding: 0.85rem 2rem;
+    background: linear-gradient(135deg, var(--accent), #0066cc);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,170,255,0.4);
+  }
+
+  .btn-secondary {
+    padding: 0.85rem 2rem;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s, transform 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(0,170,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  /* Hero Blueprint Visual */
+  .hero-visual {
+    position: relative;
+    opacity: 0;
+    animation: fadeIn 1s 0.8s forwards;
+  }
+
+  .blueprint-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .blueprint-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,170,255,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,170,255,0.06) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .blueprint-header {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    letter-spacing: 2px;
+  }
+
+  .bp-floor {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    margin-bottom: 1rem;
+  }
+
+  .bp-room {
+    background: rgba(0,170,255,0.08);
+    border: 1px solid rgba(0,170,255,0.25);
+    border-radius: 2px;
+    padding: 0.6rem 0.4rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--accent);
+    text-align: center;
+  }
+
+  .bp-room.wide { grid-column: span 2; }
+  .bp-room.tall { grid-row: span 2; }
+  .bp-room.highlight-room {
+    background: rgba(0,229,204,0.12);
+    border-color: rgba(0,229,204,0.4);
+    color: var(--accent2);
+  }
+
+  .bp-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .bp-stat {
+    background: rgba(0,170,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.6rem;
+    text-align: center;
+  }
+
+  .bp-stat-val {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--accent2);
+  }
+
+  .bp-stat-lbl {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ====== SECTION HEADERS ====== */
+  .section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .section-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .section-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .section-title .hl { color: var(--accent); }
+
+  .section-sub {
+    color: var(--steel);
+    font-size: 0.95rem;
+    margin-top: 0.8rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ====== ABOUT SECTION ====== */
+  #about { padding: 8rem 0; }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .about-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .feature-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: border-color 0.2s;
+  }
+
+  .feature-row:hover { border-color: var(--accent); }
+
+  .feature-icon {
+    font-size: 1.5rem;
+    min-width: 2.5rem;
+    text-align: center;
+  }
+
+  .feature-text h4 {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.3rem;
+    color: var(--white);
+  }
+
+  .feature-text p {
+    color: var(--steel);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .about-info h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--white);
+  }
+
+  .about-info p {
+    color: var(--steel);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .tech-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(0,170,255,0.1);
+    border: 1px solid rgba(0,170,255,0.3);
+    color: var(--accent);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    margin: 0.3rem;
+    display: inline-block;
+  }
+
+  /* ====== SCENARIOS ====== */
+  #scenarios { padding: 8rem 0; background: linear-gradient(to bottom, transparent, rgba(10,22,40,0.5), transparent); }
+
+  .scenarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .scenario-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .scenario-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 12px 40px rgba(0,170,255,0.15);
+  }
+
+  .scenario-header {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .scenario-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.4rem;
+    color: var(--accent);
+    font-weight: bold;
+    min-width: 2.5rem;
+  }
+
+  .scenario-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+  }
+
+  .scenario-body { padding: 1.5rem; }
+
+  .scenario-body.hidden { display: none; }
+
+  .scenario-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent2);
+    letter-spacing: 2px;
+    margin-bottom: 0.8rem;
+    display: block;
+  }
+
+  .data-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.85rem;
+  }
+
+  .data-row:last-child { border-bottom: none; }
+  .data-row .key { color: var(--steel); }
+  .data-row .val { color: var(--white); font-weight: 500; font-family: 'Rajdhani', sans-serif; font-size: 1rem; }
+  .data-row .val.accent { color: var(--accent2); }
+
+  .expand-hint {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-align: center;
+    padding: 0.8rem;
+    border-top: 1px solid var(--border);
+    transition: color 0.2s;
+  }
+
+  .scenario-card:hover .expand-hint { color: var(--accent); }
+
+  /* ====== FEATURES ====== */
+  #features { padding: 8rem 0; }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .feat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .feat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .feat-card:hover { transform: translateY(-4px); border-color: rgba(0,170,255,0.3); }
+  .feat-card:hover::before { opacity: 1; }
+
+  .feat-icon { font-size: 2rem; margin-bottom: 1rem; }
+
+  .feat-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .feat-desc { color: var(--steel); font-size: 0.85rem; line-height: 1.6; }
+
+  /* ====== ARCHITECTURE ====== */
+  #architecture { padding: 8rem 0; }
+
+  .arch-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .arch-diagram::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,170,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,170,255,0.04) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  .arch-layers {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .arch-layer {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .arch-node {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.8rem 1.5rem;
+    text-align: center;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    min-width: 140px;
+  }
+
+  .arch-node:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(0,170,255,0.2);
+  }
+
+  .arch-node-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+
+  .arch-node-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    color: var(--white);
+  }
+
+  .arch-node-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .arch-node.primary {
+    border-color: rgba(0,170,255,0.4);
+    background: rgba(0,170,255,0.08);
+  }
+
+  .arch-node.secondary {
+    border-color: rgba(0,229,204,0.3);
+    background: rgba(0,229,204,0.06);
+  }
+
+  .arch-connector {
+    width: 2px;
+    height: 30px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent2));
+    margin: 0 auto;
+    position: relative;
+    opacity: 0.5;
+  }
+
+  .arch-connector::after {
+    content: '▼';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    color: var(--accent2);
+  }
+
+  /* ====== TECH STACK ====== */
+  #stack { padding: 8rem 0; }
+
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+
+  .stack-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .stack-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+  }
+
+  .stack-icon { font-size: 2.2rem; margin-bottom: 0.8rem; }
+
+  .stack-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+  }
+
+  .stack-version {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ====== TIMELINE ====== */
+  #timeline { padding: 8rem 0; }
+
+  .timeline-track {
+    position: relative;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .timeline-track::before {
+    content: '';
+    position: absolute;
+    left: 2.2rem;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent2), transparent);
+  }
+
+  .tl-item {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+    opacity: 0;
+    transform: translateX(-20px);
+    animation: slideIn 0.6s forwards;
+  }
+
+  .tl-item:nth-child(1) { animation-delay: 0.1s; }
+  .tl-item:nth-child(2) { animation-delay: 0.2s; }
+  .tl-item:nth-child(3) { animation-delay: 0.3s; }
+  .tl-item:nth-child(4) { animation-delay: 0.4s; }
+  .tl-item:nth-child(5) { animation-delay: 0.5s; }
+
+  .tl-dot {
+    min-width: 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+    box-shadow: 0 0 12px rgba(0,170,255,0.3);
+  }
+
+  .tl-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.2rem 1.5rem;
+    flex: 1;
+    transition: border-color 0.2s;
+  }
+
+  .tl-content:hover { border-color: var(--accent); }
+
+  .tl-week {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 0.4rem;
+  }
+
+  .tl-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .tl-desc { color: var(--steel); font-size: 0.85rem; line-height: 1.5; }
+
+  /* ====== REQUIREMENTS ====== */
+  #requirements { padding: 8rem 0; }
+
+  .req-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .req-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+  }
+
+  .req-card-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .req-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+    color: var(--steel);
+  }
+
+  .req-item::before {
+    content: '▹';
+    color: var(--accent2);
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+
+  /* ====== DEMO ====== */
+  #demo { padding: 8rem 0; }
+
+  .demo-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .demo-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+  }
+
+  .form-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .form-group { margin-bottom: 1.2rem; }
+
+  .form-group label {
+    display: block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--steel);
+    letter-spacing: 1.5px;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+  }
+
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(0,170,255,0.15);
+  }
+
+  .form-group select option { background: var(--bg); }
+
+  .btn-analyze {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--accent), #0066cc);
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 0.5rem;
+  }
+
+  .btn-analyze:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,170,255,0.4);
+  }
+
+  /* Results Panel */
+  .demo-results {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    min-height: 400px;
+  }
+
+  .results-header {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface2);
+  }
+
+  .results-header-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+
+  .results-status {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    border: 1px solid;
+  }
+
+  .results-status.idle { color: var(--muted); border-color: var(--muted); }
+  .results-status.loading { color: var(--accent); border-color: var(--accent); animation: blink 1s infinite; }
+  .results-status.done { color: var(--accent2); border-color: var(--accent2); }
+
+  .results-body { padding: 1.5rem; }
+
+  .results-placeholder {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted);
+  }
+
+  .results-placeholder-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+
+  .results-placeholder p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+  }
+
+  .result-section { margin-bottom: 1.5rem; }
+
+  .result-section-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 1.5px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .result-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .result-rows { display: flex; flex-direction: column; gap: 0.4rem; }
+
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.8rem;
+    background: rgba(0,170,255,0.04);
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+
+  .result-row .rk { color: var(--steel); }
+  .result-row .rv { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 1rem; color: var(--white); }
+  .result-row .rv.highlight { color: var(--accent2); }
+
+  .loading-bar {
+    width: 100%;
+    height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+
+  .loading-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  /* ====== CONCLUSION ====== */
+  #conclusion { padding: 8rem 0; }
+
+  .conclusion-box {
+    background: linear-gradient(135deg, rgba(0,170,255,0.08), rgba(0,229,204,0.04));
+    border: 1px solid rgba(0,170,255,0.2);
+    border-radius: 12px;
+    padding: 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .conclusion-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,170,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,170,255,0.04) 1px, transparent 1px);
+    background-size: 25px 25px;
+    pointer-events: none;
+  }
+
+  .conclusion-box h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .conclusion-box p {
+    color: var(--steel);
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    line-height: 1.8;
+    position: relative;
+  }
+
+  .conclusion-tags {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .ctag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.6rem 1.2rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  /* ====== FOOTER ====== */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 0;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  footer p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  footer span { color: var(--accent); }
+
+  /* ====== DIVIDER ====== */
+  .divider {
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    margin: 0 auto 2rem;
+  }
+
+  /* ====== ANIMATIONS ====== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  @keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+  }
+
+  /* Glassmorphism results */
+  .glass {
+    background: rgba(10,22,40,0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0,170,255,0.15);
+    border-radius: 8px;
+  }
+
+  /* ====== RESPONSIVE ====== */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero-inner { grid-template-columns: 1fr; }
+    .hero-visual { display: none; }
+    .about-grid { grid-template-columns: 1fr; }
+    .demo-wrapper { grid-template-columns: 1fr; }
+    .conclusion-box { padding: 2.5rem 1.5rem; }
+    section { padding: 5rem 0 !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Construct<span>AI</span></div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#scenarios">Scenarios</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#demo">Live Demo</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="hero-eyebrow">// AI-POWERED CONSTRUCTION PLANNING SYSTEM v1.0</div>
+        <h1 class="hero-title">
+          Build Smarter With<br>
+          <span class="highlight">AI-Driven</span> Planning
+        </h1>
+        <div class="hero-subtitle">Intelligent Estimation · Resource Planning · Scheduling</div>
+        <div class="hero-badge">⬢ IBM Granite 3.3 2B via Ollama — Local, Private, No Cloud Required</div>
+        <p class="hero-desc">
+          A fully local AI construction planning platform that generates accurate cost estimations, 
+          workforce requirements, material quantities, and detailed week-by-week schedules — 
+          powered by IBM Granite 3.3 2B running offline via Ollama.
+        </p>
+        <div class="btn-group">
+          <a href="#demo" class="btn-primary">Start Planning</a>
+          <a href="#architecture" class="btn-secondary">View Architecture</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="blueprint-card">
+          <div class="blueprint-header">▣ BLUEPRINT — RESIDENTIAL G+2 · 1000 SQ YD</div>
+          <div class="bp-floor">
+            <div class="bp-room wide highlight-room">LIVING ROOM</div>
+            <div class="bp-room">BED 1</div>
+            <div class="bp-room">BED 2</div>
+            <div class="bp-room">KITCHEN</div>
+            <div class="bp-room wide">DINING</div>
+            <div class="bp-room">BATH</div>
+            <div class="bp-room">STUDY</div>
+          </div>
+          <div class="bp-stats">
+            <div class="bp-stat">
+              <div class="bp-stat-val">₹48.5L</div>
+              <div class="bp-stat-lbl">EST. COST</div>
+            </div>
+            <div class="bp-stat">
+              <div class="bp-stat-val">32</div>
+              <div class="bp-stat-lbl">WORKERS</div>
+            </div>
+            <div class="bp-stat">
+              <div class="bp-stat-val">120d</div>
+              <div class="bp-stat-lbl">TIMELINE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">// 01 — PROJECT DESCRIPTION</span>
+      <h2 class="section-title">What Does <span class="hl">ConstructAI</span> Do?</h2>
+      <p class="section-sub">A powerful AI-first platform for construction planning — built to work entirely offline with precision and speed.</p>
+    </div>
+    <div class="divider"></div>
+    <div class="about-grid">
+      <div class="about-features">
+        <div class="feature-row">
+          <div class="feature-icon">🏗️</div>
+          <div class="feature-text">
+            <h4>AI-Powered Parameter Analysis</h4>
+            <p>Analyzes built-up area, floors, and project type to generate intelligent construction parameters automatically.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="feature-icon">👷</div>
+          <div class="feature-text">
+            <h4>Detailed Worker Breakdown</h4>
+            <p>Calculates exact headcounts for masons, helpers, steel workers, carpenters, electricians, plumbers, and supervisors.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="feature-icon">💰</div>
+          <div class="feature-text">
+            <h4>Complete Cost Analysis</h4>
+            <p>Breaks down labor costs, material costs, overhead expenses, and contingency budgets with regional pricing data.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="feature-icon">📅</div>
+          <div class="feature-text">
+            <h4>Week-by-Week Scheduling</h4>
+            <p>Generates granular construction timelines with phase milestones, dependencies, and critical path identification.</p>
+          </div>
+        </div>
+      </div>
+      <div class="about-info">
+        <h3>Local AI Inference — No Cloud, No Keys</h3>
+        <p>ConstructAI runs IBM Granite 3.3 2B entirely on your local machine via Ollama. Your project data never leaves your system, making it ideal for confidential commercial and government projects.</p>
+        <p>The Python calculation engine works in tandem with the AI model — using established construction mathematics for material quantity takeoffs while the LLM provides intelligent, context-aware insights and narrative planning documents.</p>
+        <p>The Flask backend serves a clean HTML/CSS/JS frontend that works in any modern browser without requiring any cloud connectivity after initial setup.</p>
+        <div>
+          <span class="tech-pill">IBM Granite 3.3 2B</span>
+          <span class="tech-pill">Ollama Runtime</span>
+          <span class="tech-pill">Flask Backend</span>
+          <span class="tech-pill">Offline Processing</span>
+          <span class="tech-pill">Fast &amp; Secure</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCENARIOS -->
+<section id="scenarios">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">// 02 — REAL-WORLD SCENARIOS</span>
+      <h2 class="section-title">See It In <span class="hl">Action</span></h2>
+      <p class="section-sub">Click any scenario to expand detailed AI-generated analysis including workers, costs, materials, and timelines.</p>
+    </div>
+    <div class="divider"></div>
+    <div class="scenarios-grid">
+      <!-- Card 1 -->
+      <div class="scenario-card" onclick="toggleScenario(this)">
+        <div class="scenario-header">
+          <div class="scenario-num">01</div>
+          <div class="scenario-title">Residential G+2 — 1000 Sq Yards</div>
+        </div>
+        <div class="scenario-body hidden">
+          <span class="scenario-tag">▸ WORKER REQUIREMENTS</span>
+          <div class="data-row"><span class="key">Masons</span><span class="val">12</span></div>
+          <div class="data-row"><span class="key">Helpers</span><span class="val">18</span></div>
+          <div class="data-row"><span class="key">Steel Workers</span><span class="val">6</span></div>
+          <div class="data-row"><span class="key">Carpenters</span><span class="val">4</span></div>
+          <div class="data-row"><span class="key">Total Workers</span><span class="val accent">42</span></div>
+          <br>
+          <span class="scenario-tag">▸ COST BREAKDOWN</span>
+          <div class="data-row"><span class="key">Labor Cost</span><span class="val">₹18,50,000</span></div>
+          <div class="data-row"><span class="key">Materials</span><span class="val">₹26,80,000</span></div>
+          <div class="data-row"><span class="key">Overhead (12%)</span><span class="val">₹5,43,600</span></div>
+          <div class="data-row"><span class="key">Total Estimate</span><span class="val accent">₹50,73,600</span></div>
+          <br>
+          <span class="scenario-tag">▸ MATERIALS</span>
+          <div class="data-row"><span class="key">Cement (bags)</span><span class="val">1,840</span></div>
+          <div class="data-row"><span class="key">Steel (MT)</span><span class="val">22</span></div>
+          <div class="data-row"><span class="key">Sand (cu ft)</span><span class="val">4,200</span></div>
+          <div class="data-row"><span class="key">Timeline</span><span class="val accent">120 Days</span></div>
+        </div>
+        <div class="expand-hint">▼ CLICK TO EXPAND ANALYSIS</div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="scenario-card" onclick="toggleScenario(this)">
+        <div class="scenario-header">
+          <div class="scenario-num">02</div>
+          <div class="scenario-title">1500 Sq Yard — 90-Day Timeline</div>
+        </div>
+        <div class="scenario-body hidden">
+          <span class="scenario-tag">▸ WORKER REQUIREMENTS</span>
+          <div class="data-row"><span class="key">Masons</span><span class="val">18</span></div>
+          <div class="data-row"><span class="key">Helpers</span><span class="val">26</span></div>
+          <div class="data-row"><span class="key">Steel Workers</span><span class="val">9</span></div>
+          <div class="data-row"><span class="key">Supervisors</span><span class="val">2</span></div>
+          <div class="data-row"><span class="key">Total Workers</span><span class="val accent">62</span></div>
+          <br>
+          <span class="scenario-tag">▸ COST BREAKDOWN</span>
+          <div class="data-row"><span class="key">Labor Cost</span><span class="val">₹26,40,000</span></div>
+          <div class="data-row"><span class="key">Materials</span><span class="val">₹38,70,000</span></div>
+          <div class="data-row"><span class="key">Overhead (12%)</span><span class="val">₹7,81,200</span></div>
+          <div class="data-row"><span class="key">Total Estimate</span><span class="val accent">₹72,91,200</span></div>
+          <br>
+          <span class="scenario-tag">▸ ACCELERATED SCHEDULE</span>
+          <div class="data-row"><span class="key">Foundation</span><span class="val">Wks 1–2</span></div>
+          <div class="data-row"><span class="key">Structure</span><span class="val">Wks 3–8</span></div>
+          <div class="data-row"><span class="key">Finishing</span><span class="val">Wks 9–13</span></div>
+          <div class="data-row"><span class="key">Completion</span><span class="val accent">90 Days</span></div>
+        </div>
+        <div class="expand-hint">▼ CLICK TO EXPAND ANALYSIS</div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="scenario-card" onclick="toggleScenario(this)">
+        <div class="scenario-header">
+          <div class="scenario-num">03</div>
+          <div class="scenario-title">2000 Sq Yard G+3 Cost Analysis</div>
+        </div>
+        <div class="scenario-body hidden">
+          <span class="scenario-tag">▸ WORKER REQUIREMENTS</span>
+          <div class="data-row"><span class="key">Masons</span><span class="val">24</span></div>
+          <div class="data-row"><span class="key">Steel Workers</span><span class="val">14</span></div>
+          <div class="data-row"><span class="key">Electricians</span><span class="val">6</span></div>
+          <div class="data-row"><span class="key">Plumbers</span><span class="val">4</span></div>
+          <div class="data-row"><span class="key">Total Workers</span><span class="val accent">86</span></div>
+          <br>
+          <span class="scenario-tag">▸ COST BREAKDOWN</span>
+          <div class="data-row"><span class="key">Labor Cost</span><span class="val">₹44,80,000</span></div>
+          <div class="data-row"><span class="key">Materials</span><span class="val">₹68,20,000</span></div>
+          <div class="data-row"><span class="key">Overhead (12%)</span><span class="val">₹13,56,000</span></div>
+          <div class="data-row"><span class="key">Total Estimate</span><span class="val accent">₹1,26,56,000</span></div>
+          <br>
+          <span class="scenario-tag">▸ MATERIALS (G+3)</span>
+          <div class="data-row"><span class="key">Cement (bags)</span><span class="val">5,200</span></div>
+          <div class="data-row"><span class="key">Steel (MT)</span><span class="val">68</span></div>
+          <div class="data-row"><span class="key">Timeline</span><span class="val accent">180 Days</span></div>
+        </div>
+        <div class="expand-hint">▼ CLICK TO EXPAND ANALYSIS</div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="scenario-card" onclick="toggleScenario(this)">
+        <div class="scenario-header">
+          <div class="scenario-num">04</div>
+          <div class="scenario-title">Detailed Weekly Construction Schedule</div>
+        </div>
+        <div class="scenario-body hidden">
+          <span class="scenario-tag">▸ PHASE SCHEDULE (16 WEEKS)</span>
+          <div class="data-row"><span class="key">Wk 1–2</span><span class="val">Site Clearing &amp; Foundation Layout</span></div>
+          <div class="data-row"><span class="key">Wk 3–4</span><span class="val">Foundation Excavation &amp; PCC</span></div>
+          <div class="data-row"><span class="key">Wk 5–7</span><span class="val">Footing &amp; Column Work</span></div>
+          <div class="data-row"><span class="key">Wk 8–10</span><span class="val">Slab, Walls, Brickwork</span></div>
+          <div class="data-row"><span class="key">Wk 11–13</span><span class="val">Plumbing, Electrical, Finishing</span></div>
+          <div class="data-row"><span class="key">Wk 14–16</span><span class="val accent">Interior, QC &amp; Handover</span></div>
+        </div>
+        <div class="expand-hint">▼ CLICK TO EXPAND ANALYSIS</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">// 03 — CORE FEATURES</span>
+      <h2 class="section-title">Everything You <span class="hl">Need</span></h2>
+    </div>
+    <div class="divider"></div>
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon">🧮</div>
+        <div class="feat-title">AI Cost Estimation</div>
+        <div class="feat-desc">Generates accurate project cost breakdowns using AI analysis combined with regional material and labor pricing data.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">👷</div>
+        <div class="feat-title">Workforce Planning</div>
+        <div class="feat-desc">Calculates exact worker requirements by trade — masons, helpers, steel fixers, carpenters, and MEP specialists.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🧱</div>
+        <div class="feat-title">Material Planning</div>
+        <div class="feat-desc">Performs complete material quantity takeoffs for cement, steel, sand, aggregate, bricks, and finishing materials.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📐</div>
+        <div class="feat-title">Blueprint Generation</div>
+        <div class="feat-desc">Creates architectural layout blueprints and schematic floor plan representations for project visualization.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📅</div>
+        <div class="feat-title">Timeline Scheduling</div>
+        <div class="feat-desc">Produces detailed week-by-week construction schedules with phase milestones and critical path analysis.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">⚙️</div>
+        <div class="feat-title">Resource Allocation</div>
+        <div class="feat-desc">Optimally allocates human and material resources across project phases to minimize cost and maximize efficiency.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🤖</div>
+        <div class="feat-title">Real-Time AI Analysis</div>
+        <div class="feat-desc">IBM Granite 3.3 2B provides intelligent, data-backed construction insights and project recommendations in real-time.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔒</div>
+        <div class="feat-title">Local Deployment</div>
+        <div class="feat-desc">Runs 100% locally via Ollama. No cloud APIs, no data transmission, no subscription keys required after setup.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">// 04 — SYSTEM ARCHITECTURE</span>
+      <h2 class="section-title">How It's <span class="hl">Built</span></h2>
+      <p class="section-sub">A clean, local-first architecture with no external dependencies at runtime.</p>
+    </div>
+    <div class="divider"></div>
+    <div class="arch-diagram">
+      <div class="arch-layers">
+
+        <!-- Layer 1: Frontend -->
+        <div class="arch-layer">
+          <div class="arch-node">
+            <div class="arch-node-icon">🌐</div>
+            <div class="arch-node-name">HTML5 / CSS3 / JS</div>
+            <div class="arch-node-sub">FRONTEND INTERFACE</div>
+          </div>
+        </div>
+
+        <div class="arch-connector"></div>
+
+        <!-- Layer 2: Flask -->
+        <div class="arch-layer">
+          <div class="arch-node primary">
+            <div class="arch-node-icon">🐍</div>
+            <div class="arch-node-name">Flask Backend</div>
+            <div class="arch-node-sub">REST API LAYER</div>
+          </div>
+        </div>
+
+        <div class="arch-connector"></div>
+
+        <!-- Layer 3: Engines -->
+        <div class="arch-layer">
+          <div class="arch-node secondary">
+            <div class="arch-node-icon">🧮</div>
+            <div class="arch-node-name">Python Engine</div>
+            <div class="arch-node-sub">CALCULATION MODULE</div>
+          </div>
+          <div class="arch-node primary">
+            <div class="arch-node-icon">🦙</div>
+            <div class="arch-node-name">Ollama Runtime</div>
+            <div class="arch-node-sub">LOCAL LLM SERVING</div>
+          </div>
+        </div>
+
+        <div class="arch-connector"></div>
+
+        <!-- Layer 4: Model -->
+        <div class="arch-layer">
+          <div class="arch-node primary" style="min-width:220px;">
+            <div class="arch-node-icon">🧠</div>
+            <div class="arch-node-name">IBM Granite 3.3 2B</div>
+            <div class="arch-node-sub">LOCAL AI INFERENCE · NO CLOUD</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:3rem;position:relative;z-index:1;">
+        <div style="text-align:center;padding:1.2rem;background:rgba(0,170,255,0.05);border:1px solid var(--border);border-radius:6px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--accent);margin-bottom:0.5rem;">LATENCY</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;color:var(--white);">&lt; 3s</div>
+          <div style="font-size:0.8rem;color:var(--steel);">Per Analysis</div>
+        </div>
+        <div style="text-align:center;padding:1.2rem;background:rgba(0,229,204,0.05);border:1px solid var(--border);border-radius:6px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--accent2);margin-bottom:0.5rem;">DATA PRIVACY</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;color:var(--white);">100%</div>
+          <div style="font-size:0.8rem;color:var(--steel);">Local Processing</div>
+        </div>
+        <div style="text-align:center;padding:1.2rem;background:rgba(0,170,255,0.05);border:1px solid var(--border);border-radius:6px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--accent);margin-bottom:0.5rem;">CLOUD APIs</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;color:var(--accent2);">ZERO</div>
+          <div style="font-size:0.8rem;color:var(--steel);">Required at Runtime</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section id="stack">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">// 05 — TECHNOLOGY STACK</span>
+      <h2 class="section-title">Built With <span class="hl">Purpose</span></h2>
+    </div>
+    <div class="divider"></div>
+    <div class="stack-grid">
+      <div class="stack-card">
+        <div class="stack-icon">🐍</div>
+        <div class="stack-name">Python</div>
+        <div class="stack-version">3.8+</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">🌶️</div>
+        <div class="stack-name">Flask</div>
+        <div class="stack-version">Web Framework</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">🧠</div>
+        <div class="stack-name">IBM Granite</div>
+        <div class="stack-version">3.3 2B Model</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">🦙</div>
+        <div class="stack-name">Ollama</div>
+        <div class="stack-version">LLM Runtime</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">🌐</div>
+        <div class="stack-name">HTML5</div>
+        <div class="stack-version">Semantic Markup</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">🎨</div>
+        <div class="stack-name">CSS3</div>
+        <div class="stack-version">Flexbox / Grid</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">⚡</div>
+        <div class="stack-name">JavaScript</div>
+        <div class="stack-version">Vanilla ES6+</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">🔐</div>
+        <div class="stack-name">Local AI</div>
+        <div class="stack-version">Zero Cloud Dependency</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section id="timeline">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">// 06 — PROJECT WORKFLOW</span>
+      <h2 class="section-title">Development <span class="hl">Roadmap</span></h2>
+      <p class="section-sub">A structured 7-week build process from environment setup to full deployment.</p>
+    </div>
+    <div class="divider"></div>
+    <div class="timeline-track">
+      <div class="tl-item">
+        <div class="tl-dot">W1</div>
+        <div class="tl-content">
+          <div class="tl-week">// WEEK 1</div>
+          <div class="tl-title">Environment Setup & Ollama Configuration</div>
+          <div class="tl-desc">Install Python 3.8+, set up Ollama, pull IBM Granite 3.3 2B model, configure virtual environment, and validate local inference pipeline.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">W2-3</div>
+        <div class="tl-content">
+          <div class="tl-week">// WEEKS 2–3</div>
+          <div class="tl-title">Backend Development</div>
+          <div class="tl-desc">Build Flask REST API, implement Python calculation engine for construction mathematics, integrate Ollama client, and design database schema for project storage.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">W4-5</div>
+        <div class="tl-content">
+          <div class="tl-week">// WEEKS 4–5</div>
+          <div class="tl-title">Frontend Development</div>
+          <div class="tl-desc">Create HTML5/CSS3 interface with blueprint theme, build interactive forms and result cards, implement animations, and ensure responsive design across devices.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">W6</div>
+        <div class="tl-content">
+          <div class="tl-week">// WEEK 6</div>
+          <div class="tl-title">Integration & Testing</div>
+          <div class="tl-desc">Connect frontend to Flask API, validate AI outputs against construction benchmarks, perform load testing, and fix edge cases in estimation logic.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">W7</div>
+        <div class="tl-content">
+          <div class="tl-week">// WEEK 7</div>
+          <div class="tl-title">Deployment & Documentation</div>
+          <div class="tl-desc">Package as standalone local application, write user documentation, create installation guide, and finalize project with demo scenarios and test reports.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REQUIREMENTS -->
+<section id="requirements">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">// 07 — REQUIREMENTS</span>
+      <h2 class="section-title">What You <span class="hl">Need</span></h2>
+    </div>
+    <div class="divider"></div>
+    <div class="req-grid">
+      <div class="req-card">
+        <div class="req-card-title">💻 Software Requirements</div>
+        <div class="req-item">Python 3.8 or higher</div>
+        <div class="req-item">Ollama (latest stable)</div>
+        <div class="req-item">IBM Granite 3.3 2B Model</div>
+        <div class="req-item">Git for version control</div>
+        <div class="req-item">Flask &amp; Python dependencies (pip)</div>
+        <div class="req-item">Any modern web browser</div>
+      </div>
+      <div class="req-card">
+        <div class="req-card-title">🖥️ Hardware Requirements</div>
+        <div class="req-item">Intel Core i5 / AMD Ryzen 5 or better</div>
+        <div class="req-item">8 GB RAM minimum (16 GB recommended)</div>
+        <div class="req-item">10 GB free storage for model + project files</div>
+        <div class="req-item">64-bit operating system (Windows / Linux / macOS)</div>
+        <div class="req-item">SSD recommended for faster model loading</div>
+      </div>
+      <div class="req-card">
+        <div class="req-card-title">📚 Knowledge Requirements</div>
+        <div class="req-item">Python programming basics</div>
+        <div class="req-item">Flask web framework fundamentals</div>
+        <div class="req-item">HTML5, CSS3, JavaScript basics</div>
+        <div class="req-item">Construction terminology &amp; basics</div>
+        <div class="req-item">Construction mathematics &amp; quantity surveying</div>
+        <div class="req-item">Basic command line / terminal usage</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">// 08 — LIVE DEMO</span>
+      <h2 class="section-title">Try the <span class="hl">AI Planner</span></h2>
+      <p class="section-sub">Enter your project parameters and see a simulated AI-generated construction analysis instantly.</p>
+    </div>
+    <div class="divider"></div>
+    <div class="demo-wrapper">
+      <div class="demo-form">
+        <div class="form-title">▣ Project Parameters</div>
+        <div class="form-group">
+          <label>Built-Up Area (Sq Yards)</label>
+          <input type="number" id="area" placeholder="e.g. 1000" min="100" max="10000">
+        </div>
+        <div class="form-group">
+          <label>Number of Floors</label>
+          <select id="floors">
+            <option value="">Select floors...</option>
+            <option value="G">Ground Floor Only (G)</option>
+            <option value="G+1">G+1 (2 Floors)</option>
+            <option value="G+2">G+2 (3 Floors)</option>
+            <option value="G+3">G+3 (4 Floors)</option>
+            <option value="G+4">G+4 (5 Floors)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Project Timeline (Days)</label>
+          <input type="number" id="timeline" placeholder="e.g. 120" min="30" max="730">
+        </div>
+        <div class="form-group">
+          <label>Project Type</label>
+          <select id="type">
+            <option value="">Select type...</option>
+            <option value="residential">Residential</option>
+            <option value="commercial">Commercial</option>
+            <option value="industrial">Industrial</option>
+            <option value="mixed">Mixed Use</option>
+          </select>
+        </div>
+        <button class="btn-analyze" onclick="runAnalysis()">⬢ ANALYZE WITH AI</button>
+      </div>
+
+      <div class="demo-results">
+        <div class="results-header">
+          <div class="results-header-title">// AI ANALYSIS OUTPUT</div>
+          <div class="results-status idle" id="status-badge">IDLE</div>
+        </div>
+        <div class="results-body" id="results-body">
+          <div class="results-placeholder" id="placeholder">
+            <div class="results-placeholder-icon">🧠</div>
+            <p>AWAITING PROJECT PARAMETERS...</p>
+            <p style="margin-top:0.5rem;font-size:0.65rem;color:var(--muted);">Fill in the form and click Analyze</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONCLUSION -->
+<section id="conclusion">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">// 09 — CONCLUSION</span>
+    </div>
+    <div class="conclusion-box">
+      <h2>AI + Construction Mathematics.<br><span style="color:var(--accent)">The Future of Project Planning.</span></h2>
+      <p>ConstructAI combines the reasoning power of IBM Granite 3.3 2B with established construction engineering mathematics to deliver fast, accurate, and fully private project planning. No cloud APIs, no subscriptions — just powerful local AI working for contractors, engineers, developers, and project managers.</p>
+      <div class="conclusion-tags">
+        <div class="ctag">IBM GRANITE 3.3 2B</div>
+        <div class="ctag">OLLAMA RUNTIME</div>
+        <div class="ctag">NO CLOUD KEYS</div>
+        <div class="ctag">FAST &amp; SECURE</div>
+        <div class="ctag">LOCAL AI INFERENCE</div>
+        <div class="ctag">PRODUCTION READY</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>ConstructAI — <span>AI-Powered Construction Planning</span> · Built with IBM Granite 3.3 2B via Ollama · Local · Private · Accurate</p>
+  </div>
+</footer>
+
+<script>
+  // Toggle scenario cards
+  function toggleScenario(card) {
+    const body = card.querySelector('.scenario-body');
+    const hint = card.querySelector('.expand-hint');
+    const isHidden = body.classList.contains('hidden');
+    body.classList.toggle('hidden');
+    hint.textContent = isHidden ? '▲ CLICK TO COLLAPSE' : '▼ CLICK TO EXPAND ANALYSIS';
+  }
+
+  // Demo Analysis
+  function runAnalysis() {
+    const area = parseInt(document.getElementById('area').value);
+    const floors = document.getElementById('floors').value;
+    const timeline = parseInt(document.getElementById('timeline').value);
+    const type = document.getElementById('type').value;
+
+    if (!area || !floors || !timeline || !type) {
+      alert('Please fill in all project parameters.');
+      return;
+    }
+
+    const statusBadge = document.getElementById('status-badge');
+    const resultsBody = document.getElementById('results-body');
+
+    // Loading state
+    statusBadge.textContent = 'PROCESSING';
+    statusBadge.className = 'results-status loading';
+    resultsBody.innerHTML = `
+      <div style="text-align:center;padding:2rem;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:var(--accent);margin-bottom:1rem;letter-spacing:2px;">IBM GRANITE 3.3 2B ANALYZING...</div>
+        <div class="loading-bar"><div class="loading-fill" id="lbar"></div></div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:0.5rem;" id="lmsg">Initializing AI inference engine...</div>
+      </div>
+    `;
+
+    // Animate loading bar
+    const messages = [
+      'Initializing AI inference engine...',
+      'Parsing project parameters...',
+      'Running cost estimation model...',
+      'Calculating workforce requirements...',
+      'Generating material quantities...',
+      'Building weekly schedule...',
+      'Compiling AI insights...'
+    ];
+    let progress = 0;
+    let msgIndex = 0;
+    const lbar = document.getElementById('lbar');
+    const lmsg = document.getElementById('lmsg');
+
+    const interval = setInterval(() => {
+      progress += 14;
+      if (lbar) lbar.style.width = Math.min(progress, 95) + '%';
+      if (lmsg && messages[msgIndex]) { lmsg.textContent = messages[msgIndex]; msgIndex++; }
+      if (progress >= 95) clearInterval(interval);
+    }, 280);
+
+    // Show results after delay
+    setTimeout(() => {
+      clearInterval(interval);
+      const floorCount = { 'G': 1, 'G+1': 2, 'G+2': 3, 'G+3': 4, 'G+4': 5 }[floors] || 2;
+      const totalArea = area * floorCount;
+
+      // Estimation math
+      const costPerSqYd = type === 'residential' ? 4800 : type === 'commercial' ? 6200 : 5400;
+      const totalCost = totalArea * costPerSqYd;
+      const labor = Math.round(totalCost * 0.35);
+      const materials = Math.round(totalCost * 0.52);
+      const overhead = Math.round(totalCost * 0.13);
+
+      const workers = Math.round(totalArea / 30);
+      const masons = Math.round(workers * 0.28);
+      const helpers = Math.round(workers * 0.40);
+      const steelWorkers = Math.round(workers * 0.15);
+      const carpenters = Math.round(workers * 0.10);
+      const others = workers - masons - helpers - steelWorkers - carpenters;
+
+      const cement = Math.round(totalArea * 1.8);
+      const steel = Math.round(totalArea * 0.022);
+      const sand = Math.round(totalArea * 4.2);
+      const bricks = Math.round(totalArea * 22);
+      const weeks = Math.ceil(timeline / 7);
+
+      statusBadge.textContent = 'COMPLETE';
+      statusBadge.className = 'results-status done';
+
+      resultsBody.innerHTML = `
+        <div class="result-section">
+          <div class="result-section-title">👷 Workforce Requirements</div>
+          <div class="result-rows">
+            <div class="result-row"><span class="rk">Masons</span><span class="rv">${masons} workers</span></div>
+            <div class="result-row"><span class="rk">Helpers / Laborers</span><span class="rv">${helpers} workers</span></div>
+            <div class="result-row"><span class="rk">Steel Workers</span><span class="rv">${steelWorkers} workers</span></div>
+            <div class="result-row"><span class="rk">Carpenters</span><span class="rv">${carpenters} workers</span></div>
+            <div class="result-row"><span class="rk">MEP & Others</span><span class="rv">${others} workers</span></div>
+            <div class="result-row" style="background:rgba(0,229,204,0.06);"><span class="rk"><strong>Total Workforce</strong></span><span class="rv highlight"><strong>${workers} workers</strong></span></div>
+          </div>
+        </div>
+
+        <div class="result-section">
+          <div class="result-section-title">💰 Cost Estimation</div>
+          <div class="result-rows">
+            <div class="result-row"><span class="rk">Labor Cost</span><span class="rv">₹${labor.toLocaleString('en-IN')}</span></div>
+            <div class="result-row"><span class="rk">Material Cost</span><span class="rv">₹${materials.toLocaleString('en-IN')}</span></div>
+            <div class="result-row"><span class="rk">Overhead & Misc</span><span class="rv">₹${overhead.toLocaleString('en-IN')}</span></div>
+            <div class="result-row" style="background:rgba(0,229,204,0.06);"><span class="rk"><strong>Total Estimate</strong></span><span class="rv highlight"><strong>₹${totalCost.toLocaleString('en-IN')}</strong></span></div>
+          </div>
+        </div>
+
+        <div class="result-section">
+          <div class="result-section-title">🧱 Material Quantities</div>
+          <div class="result-rows">
+            <div class="result-row"><span class="rk">Cement</span><span class="rv">${cement.toLocaleString()} bags</span></div>
+            <div class="result-row"><span class="rk">Steel</span><span class="rv">${steel} MT</span></div>
+            <div class="result-row"><span class="rk">Sand</span><span class="rv">${sand.toLocaleString()} cu ft</span></div>
+            <div class="result-row"><span class="rk">Bricks</span><span class="rv">${bricks.toLocaleString()} units</span></div>
+          </div>
+        </div>
+
+        <div class="result-section">
+          <div class="result-section-title">📅 Timeline Summary</div>
+          <div class="result-rows">
+            <div class="result-row"><span class="rk">Project Duration</span><span class="rv">${timeline} days (${weeks} weeks)</span></div>
+            <div class="result-row"><span class="rk">Foundation Phase</span><span class="rv">Weeks 1–${Math.round(weeks*0.15)}</span></div>
+            <div class="result-row"><span class="rk">Structure Phase</span><span class="rv">Weeks ${Math.round(weeks*0.15)+1}–${Math.round(weeks*0.65)}</span></div>
+            <div class="result-row"><span class="rk">Finishing Phase</span><span class="rv">Weeks ${Math.round(weeks*0.65)+1}–${weeks}</span></div>
+            <div class="result-row" style="background:rgba(0,229,204,0.06);"><span class="rk"><strong>Total Built-Up Area</strong></span><span class="rv highlight"><strong>${totalArea.toLocaleString()} sq yd</strong></span></div>
+          </div>
+        </div>
+      `;
+    }, 2100);
+  }
+
+  // Intersection Observer for scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'none';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.feat-card, .stack-card, .req-card, .scenario-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
